@@ -26,8 +26,10 @@ const postSchema = new mongoose.Schema({title: String,
 
 const Post = mongoose.model("Post", postSchema)
 
-
-mongoose.connect("mongodb+srv://"+process.env.DB_USERNAME+":"+process.env.DB_PASSWORD+"@cluster0.m1fmojj.mongodb.net/blogtDatabase")
+mongoose.set("strictQuery", false);
+const connectDB = async ()=>  {
+try { await mongoose.connect(process.env.MONGO_URI) }
+catch (err) {console.log("ao"); process.exit(1)} }
 
 app.get("/", function(req, res){
   Post.find().then(foundPosts => {
@@ -79,7 +81,8 @@ app.get("/posts/:postId", function(req, res){
   )})
 
 
+connectDB().then(()=>{app.listen(process.env.PORT || 3000, function() {
+  console.log("Server started");})})
 
-app.listen(3000, function() {
-  console.log("Server started on port 3000");
-});
+mongoose.connection.close()
+
